@@ -1,0 +1,103 @@
+<resources>
+    <string name="app_name">MeowReader</string>
+
+    <!-- 共用 -->
+    <string name="action_save">儲存</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_close">關閉</string>
+    <string name="action_confirm">確定</string>
+    <string name="action_back">返回</string>
+    <string name="action_copy">複製</string>
+    <string name="action_edit">編輯</string>
+    <string name="action_pin">釘選</string>
+    <string name="action_unpin">取消釘選</string>
+    <string name="action_decrease">減少</string>
+    <string name="action_increase">增加</string>
+
+    <!-- MainPage -->
+    <string name="main_back_to_parent">返回上一層</string>
+    <string name="main_select_folder">選擇資料夾</string>
+    <string name="main_sort">排序方式</string>
+    <string name="main_sort_by_name">依名稱</string>
+    <string name="main_sort_by_modified_date">依修改日期</string>
+    <string name="main_more">更多</string>
+    <string name="main_global_setting">全域設定</string>
+    <string name="main_raw_config">RawConfig</string>
+    <string name="main_no_folder_title">還沒有選擇資料夾</string>
+    <string name="main_no_folder_message">選一個放 txt 檔的資料夾，就可以開始閱讀。</string>
+    <string name="main_empty_folder">這個資料夾裡沒有資料夾或 txt 檔。</string>
+    <string name="main_load_failed">無法讀取這個資料夾，存取權限可能已經失效。請重新選擇資料夾。</string>
+    <string name="main_open_with_other_app">用其他 App 開啟</string>
+    <string name="main_no_app_to_open">找不到可以開啟這個檔案的 App。</string>
+    <string name="main_item_pinned">已釘選</string>
+    <string name="main_progress_label">%1$d%%</string>
+    <string name="main_progress_description">閱讀進度 %1$s%%</string>
+    <string name="main_config_corrupt_title">設定檔錯誤</string>
+    <string name="main_config_corrupt_message">設定檔讀取失敗，可能已損毀。已改用全新的預設設定，原本的設定檔另存為 %1$s。</string>
+
+    <!-- 全域設定 -->
+    <string name="global_setting_title">全域設定</string>
+    <string name="global_setting_appearance">外觀</string>
+    <string name="global_setting_appearance_hint">選擇應用程式的淺色／深色主題。</string>
+    <string name="theme_default">跟隨系統</string>
+    <string name="theme_light">淺色</string>
+    <string name="theme_dark">深色</string>
+
+    <!-- RawConfig -->
+    <string name="raw_config_title">RawConfig</string>
+
+    <!-- 章節抓取設定 -->
+    <string name="chapter_setting_title">章節抓取設定</string>
+    <string name="chapter_setting_hint">章節 regex 判斷，比對成功該行就視為章節標題。</string>
+    <string name="chapter_setting_regex_label">Regex</string>
+    <string name="chapter_setting_remove_row">刪除這一列</string>
+    <string name="chapter_setting_add">新增</string>
+    <string name="chapter_setting_restore_defaults">加回預設值</string>
+    <string name="chapter_setting_title_max_length">章節標題字數上限</string>
+    <string name="chapter_setting_title_max_length_hint">超過這個字數的行不視為章節。</string>
+    <string name="chapter_setting_skip_lines">從第幾行後開始比對章節</string>
+    <string name="chapter_setting_skip_lines_hint">跳過開頭幾行不比對，避開書名頁、版權頁或目錄裡誤判成章節的字樣。</string>
+    <string name="chapter_setting_regex_error">Regex 語法錯誤：%1$s</string>
+    <string name="chapter_setting_file_title">本篇章節抓取設定</string>
+    <string name="chapter_setting_use_default">使用預設值</string>
+
+    <!-- ReaderPage -->
+    <string name="reader_title_with_progress">%1$s (%2$s%%)</string>
+    <string name="reader_load_failed">無法讀取這個檔案，檔案可能已被移動或刪除。</string>
+    <string name="reader_chapters">章節</string>
+    <string name="reader_settings">設定</string>
+    <string name="reader_progress_slider">閱讀進度</string>
+    <string name="reader_line_number">第 %1$d 行</string>
+
+    <!-- 章節清單 -->
+    <string name="chapter_list_title">章節</string>
+    <string name="chapter_list_refresh">重新抓取章節</string>
+    <string name="chapter_list_empty">沒有抓到章節。可按右上角的齒輪調整章節抓取設定後再重新整理。</string>
+
+    <!-- 閱讀設定 -->
+    <string name="reader_setting_title">設定</string>
+    <string name="reader_setting_font_size">文字大小</string>
+    <string name="reader_setting_line_spacing">行距</string>
+    <string name="reader_setting_colors">背景文字顏色</string>
+    <string name="reader_setting_color_system">系統預設</string>
+    <string name="reader_setting_color_custom">自訂</string>
+    <string name="reader_setting_background_color">背景色</string>
+    <string name="reader_setting_text_color">文字顏色</string>
+    <string name="reader_setting_pick_color">選擇顏色</string>
+    <string name="reader_setting_pick_background_color">選擇背景色</string>
+    <string name="reader_setting_pick_text_color">選擇文字顏色</string>
+    <string name="reader_setting_color_hex_hint">#RRGGBB</string>
+    <string name="color_picker_hue">色相</string>
+    <string name="color_picker_saturation">飽和度</string>
+    <string name="color_picker_brightness">亮度</string>
+
+    <!-- 單行編輯 -->
+    <string name="line_edit_title">編輯第 %1$d 行</string>
+    <string name="line_edit_raw">原文</string>
+    <string name="line_edit_raw_missing">（原文檔案沒有這一行）</string>
+    <string name="line_edit_text">正文</string>
+    <string name="line_edit_error_file_not_found">找不到檔案。</string>
+    <string name="line_edit_error_not_utf8">這個檔案不是 UTF-8 編碼，為避免寫回時毀掉整個檔案，請改用其他編輯器編輯。</string>
+    <string name="line_edit_error_out_of_range">行號超出檔案範圍，檔案可能已被其他程式改過。</string>
+    <string name="line_edit_error_write_failed">寫入失敗：%1$s</string>
+</resources>
