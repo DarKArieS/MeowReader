@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +26,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.nekroz.meowreader.R
 import com.nekroz.meowreader.repo.model.ReaderSetting
 import com.nekroz.meowreader.ui.common.ValueStepper
+import com.nekroz.meowreader.ui.common.bottomSheetContentMaxHeight
+import com.nekroz.meowreader.ui.common.keepScrollInsideSheet
 import com.nekroz.meowreader.ui.common.parseHexColor
 import com.nekroz.meowreader.ui.common.toHexString
 import java.util.Locale
@@ -65,12 +69,16 @@ fun ReaderSettingsSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        // 不要「先開一半、再往上拉才全開」的兩段式：一打開就直接展開到內容需要的高度。
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         // 不要遮罩：調整字級與顏色時要看得到後面內文的實際效果。
         scrimColor = Color.Transparent,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(max = bottomSheetContentMaxHeight())
+                .keepScrollInsideSheet()
                 .verticalScroll(rememberScrollState())
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
         ) {

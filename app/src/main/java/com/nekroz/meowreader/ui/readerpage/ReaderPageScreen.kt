@@ -53,6 +53,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -312,6 +313,11 @@ private fun ReaderContent(
             lineMenu?.let { menu ->
                 // 選單錨定在長按的位置：放一個零大小的 Box 在該座標，選單就會從那裡展開。
                 Box(Modifier.offset { menu.offset }) {
+                    // 選單一打開就先去讀原文的那一行：這樣「複製原文」可以在原文沒有這一行時
+                    // 直接顯示成不能按，而不是按了才發現沒東西可複製。
+                    val rawText by produceState<String?>(initialValue = null, menu.lineIndex, state.hasRawFile) {
+                        value = if (state.hasRawFile) viewModel.getRawLineText(menu.lineIndex) else null
+                    }
                     DropdownMenu(expanded = true, onDismissRequest = { lineMenu = null }) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.reader_line_number, menu.lineIndex + 1)) },
@@ -336,6 +342,24 @@ private fun ReaderContent(
                                 lineMenu = null
                             },
                         )
+                        // 有 raw 資料夾內的原文檔案才出現這一項。
+                        if (state.hasRawFile) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.reader_copy_raw)) },
+                                onClick = {
+                                    val text = rawText
+                                    if (text != null) {
+                                        scope.launch {
+                                            clipboard.setClipEntry(
+                                                ClipEntry(ClipData.newPlainText(state.fileName, text))
+                                            )
+                                        }
+                                    }
+                                    lineMenu = null
+                                },
+                                enabled = rawText != null,
+                            )
+                        }
                     }
                 }
             }

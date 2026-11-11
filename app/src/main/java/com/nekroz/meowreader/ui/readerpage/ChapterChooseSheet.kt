@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -34,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.nekroz.meowreader.R
 import com.nekroz.meowreader.repo.chapter.ChapterItem
 import com.nekroz.meowreader.repo.chapter.ChapterParser
+import com.nekroz.meowreader.ui.common.bottomSheetContentMaxHeight
+import com.nekroz.meowreader.ui.common.keepScrollInsideSheet
 import kotlinx.coroutines.launch
 
 /**
@@ -52,11 +55,19 @@ fun ChapterChooseSheet(
     onOpenSetting: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    // 不要「先開一半、再往上拉才全開」的兩段式：一打開就直接展開到內容需要的高度。
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        Column(Modifier.fillMaxWidth()) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .heightIn(max = bottomSheetContentMaxHeight()),
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -123,7 +134,12 @@ private fun ChapterList(
         if (currentIndex >= 0) listState.scrollToItem((currentIndex - 1).coerceAtLeast(0))
     }
 
-    LazyColumn(state = listState, modifier = Modifier.fillMaxWidth()) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .keepScrollInsideSheet(),
+    ) {
         itemsIndexed(chapters) { index, chapter ->
             val isCurrent = index == currentIndex
             val color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface

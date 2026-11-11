@@ -68,6 +68,7 @@
     <string name="reader_settings">設定</string>
     <string name="reader_progress_slider">閱讀進度</string>
     <string name="reader_line_number">第 %1$d 行</string>
+    <string name="reader_copy_raw">複製原文</string>
 
     <!-- 章節清單 -->
     <string name="chapter_list_title">章節</string>

@@ -20,7 +20,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -29,8 +28,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
@@ -65,7 +62,6 @@ fun LineEditDialog(
 ) {
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
-    val focusRequester = remember { FocusRequester() }
 
     // 游標放在結尾而不是選取整行，避免一打字就整行被蓋掉。
     var textValue by remember { mutableStateOf(TextFieldValue(initialText, TextRange(initialText.length))) }
@@ -156,15 +152,11 @@ fun LineEditDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 240.dp)
-                        .focusRequester(focusRequester),
+                        .heightIn(max = 240.dp),
                     isError = errorMessage != null,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { save() }),
                 )
-                // 打開就能直接改。這個 effect 必須跟輸入框放在同一個 composition 裡（對話框內容是
-                // 另一個 composition）：放在對話框外面的話，它可能在輸入框還沒掛上去之前就先執行。
-                LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
                 errorMessage?.let { message ->
                     Text(
