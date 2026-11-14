@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon version: single color, eyes cut out of the cat, book kept separate below. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Cat head; eyes are wound opposite to the outline so nonZero fill cuts them out.
+         Clipped just above the book's top edge so the two shapes don't merge. -->
+    <group>
+        <clip-path android:pathData="M0,0H108V58Q66,54 54,59.5Q42,54 0,58Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M44,37H64A10,10 0,0 1,74 47V54A10,10 0,0 1,64 64H44A10,10 0,0 1,34 54V47A10,10 0,0 1,44 37Z M37,43L39,28L51,37Z M57,37L69,28L71,43Z M41.4,49a2.6,3.2 0,1 0,5.2 0a2.6,3.2 0,1 0,-5.2 0Z M61.4,49a2.6,3.2 0,1 0,5.2 0a2.6,3.2 0,1 0,-5.2 0Z" />
+    </group>
+    <!-- Open book with a gap down the spine -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M31,61Q42.5,57 53.2,62.2L53.2,77Q42.5,72.5 31,75.5Z M77,61Q65.5,57 54.8,62.2L54.8,77Q65.5,72.5 77,75.5Z" />
+</vector>

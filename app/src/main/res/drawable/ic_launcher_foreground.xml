@@ -1,30 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cat (same style as MeowTranslator's) reading an open book. Safe zone: r=33 circle at 54,54. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
+    <!-- Cat head and ears -->
     <path
         android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineJoin="round"
+        android:pathData="M44,37H64A10,10 0,0 1,74 47V54A10,10 0,0 1,64 64H44A10,10 0,0 1,34 54V47A10,10 0,0 1,44 37Z M37,43L39,28L51,37Z M57,37L69,28L71,43Z" />
+    <!-- Eyes and nose -->
+    <path
+        android:fillColor="#4A2C1A"
+        android:pathData="M41.4,49a2.6,3.2 0,1 0,5.2 0a2.6,3.2 0,1 0,-5.2 0Z M61.4,49a2.6,3.2 0,1 0,5.2 0a2.6,3.2 0,1 0,-5.2 0Z" />
+    <path
+        android:fillColor="#4A2C1A"
+        android:strokeColor="#4A2C1A"
         android:strokeWidth="1"
-        android:strokeColor="#00000000" />
+        android:strokeLineJoin="round"
+        android:pathData="M52.5,53L55.5,53L54,54.7Z" />
+    <!-- Mouth -->
+    <path
+        android:strokeColor="#4A2C1A"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M49,56Q51.5,59.5 54,56Q56.5,59.5 59,56" />
+    <!-- Book pages -->
+    <path
+        android:fillColor="#FFE2BF"
+        android:strokeColor="#FFE2BF"
+        android:strokeWidth="2"
+        android:strokeLineJoin="round"
+        android:pathData="M31,61Q42.5,57 54,62.5L54,77Q42.5,72.5 31,75.5Z M77,61Q65.5,57 54,62.5L54,77Q65.5,72.5 77,75.5Z" />
+    <!-- Spine -->
+    <path
+        android:strokeColor="#F0B98A"
+        android:strokeWidth="1"
+        android:strokeLineCap="round"
+        android:pathData="M54,63L54,76.5" />
+    <!-- Text lines -->
+    <path
+        android:strokeColor="#F0703A"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M35.5,65.5Q43,63 50.5,66.5M35.5,69.5Q43,67 50.5,70.5M35.5,73.5Q40,71.8 44,72.3M72.5,65.5Q65,63 57.5,66.5M72.5,69.5Q65,67 57.5,70.5M72.5,73.5Q65,71 57.5,74.5" />
+    <!-- Paws -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M36,61.5a3.6,2.8 0,1 0,7.2 0a3.6,2.8 0,1 0,-7.2 0Z M64.8,61.5a3.6,2.8 0,1 0,7.2 0a3.6,2.8 0,1 0,-7.2 0Z" />
 </vector>
