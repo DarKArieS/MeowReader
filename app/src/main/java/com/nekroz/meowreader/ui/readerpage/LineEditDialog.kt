@@ -13,13 +13,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -157,19 +162,40 @@ fun LineEditDialog(
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                OutlinedTextField(
-                    value = textValue,
-                    onValueChange = { newValue ->
-                        // 一行就是一行：換行字元不能進到內容裡，按 Enter 視為存檔。
-                        if ('\n' in newValue.text) save() else textValue = newValue
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 240.dp),
-                    isError = errorMessage != null,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { save() }),
-                )
+                val hasText = textValue.text.isNotEmpty()
+                Box {
+                    OutlinedTextField(
+                        value = textValue,
+                        onValueChange = { newValue ->
+                            // 一行就是一行：換行字元不能進到內容裡，按 Enter 視為存檔。
+                            if ('\n' in newValue.text) save() else textValue = newValue
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 240.dp),
+                        isError = errorMessage != null,
+                        // trailingIcon 會垂直置中，多行時不在右下角，所以這裡只用來讓出右側寬度，
+                        // 文字才不會跑到清除按鈕底下；真正的按鈕疊在外層 Box 的右下角。
+                        trailingIcon = if (hasText) {
+                            { Spacer(Modifier.size(CLEAR_BUTTON_SIZE)) }
+                        } else {
+                            null
+                        },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { save() }),
+                    )
+                    if (hasText) {
+                        IconButton(
+                            onClick = { textValue = TextFieldValue("") },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(CLEAR_BUTTON_SIZE),
+                            enabled = !isSaving,
+                        ) {
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.action_clear))
+                        }
+                    }
+                }
 
                 errorMessage?.let { message ->
                     Text(
@@ -266,5 +292,7 @@ private fun ImeSafeAlertDialog(
 }
 
 private val DIALOG_PADDING = 24.dp
+
+private val CLEAR_BUTTON_SIZE = 48.dp
 
 private const val RAW_CLIP_LABEL = "raw"

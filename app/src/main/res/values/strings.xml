@@ -8,6 +8,7 @@
     <string name="action_confirm">確定</string>
     <string name="action_back">返回</string>
     <string name="action_copy">複製</string>
+    <string name="action_clear">清除</string>
     <string name="action_edit">編輯</string>
     <string name="action_pin">釘選</string>
     <string name="action_unpin">取消釘選</string>
