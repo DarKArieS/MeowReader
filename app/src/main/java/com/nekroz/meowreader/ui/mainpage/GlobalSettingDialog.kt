@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -23,6 +22,7 @@ import com.nekroz.meowreader.repo.chapter.ChapterRegexSetting
 import com.nekroz.meowreader.repo.model.AppTheme
 import com.nekroz.meowreader.ui.chaptersetting.ChapterRegexSettingEditor
 import com.nekroz.meowreader.ui.chaptersetting.rememberChapterRegexSettingState
+import com.nekroz.meowreader.ui.common.ImeSafeAlertDialog
 
 /**
  * 不綁定單一檔案的全域設定。目前有外觀（淺色／深色主題）與章節抓取設定，
@@ -38,7 +38,8 @@ fun GlobalSettingDialog(
 ) {
     val chapterState = rememberChapterRegexSettingState(initialChapterSetting)
 
-    AlertDialog(
+    // 內容有 Regex 輸入框，用 ImeSafeAlertDialog 避免鍵盤彈出時對話框捲動、重新排版跳個不停。
+    ImeSafeAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.global_setting_title)) },
         text = {

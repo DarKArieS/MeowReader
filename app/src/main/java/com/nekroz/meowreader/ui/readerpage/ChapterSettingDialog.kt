@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +25,7 @@ import com.nekroz.meowreader.R
 import com.nekroz.meowreader.repo.chapter.ChapterRegexSetting
 import com.nekroz.meowreader.ui.chaptersetting.ChapterRegexSettingEditor
 import com.nekroz.meowreader.ui.chaptersetting.rememberChapterRegexSettingState
+import com.nekroz.meowreader.ui.common.ImeSafeAlertDialog
 
 /**
  * 單一檔案專屬的章節抓取設定。內容與全域設定共用同一個 [ChapterRegexSettingEditor]，
@@ -45,7 +45,8 @@ fun ChapterSettingDialog(
     var useDefault by remember { mutableStateOf(initialUseDefault) }
     val chapterState = rememberChapterRegexSettingState(initialSetting)
 
-    AlertDialog(
+    // 內容有 Regex 輸入框，用 ImeSafeAlertDialog 避免鍵盤彈出時對話框捲動、重新排版跳個不停。
+    ImeSafeAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.chapter_setting_file_title)) },
         text = {
