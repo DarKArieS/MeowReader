@@ -103,6 +103,62 @@ class TextFileCodecTest {
     }
 
     @Test
+    fun `replaceAll replaces every occurrence and keeps line endings`() {
+        val original = utf8("貓貓\r\n狗\n貓\r鳥貓")
+
+        val result = TextFileCodec.replaceAll(original, target = "貓", replacement = "喵")
+
+        assertEquals(4, result.count)
+        assertEquals("喵喵\r\n狗\n喵\r鳥喵", result.bytes.toString(Charsets.UTF_8))
+    }
+
+    @Test
+    fun `replaceAll counts non-overlapping matches`() {
+        val result = TextFileCodec.replaceAll(utf8("aaaa\naaa"), target = "aa", replacement = "b")
+
+        assertEquals(3, result.count)
+        assertEquals("bb\nba", result.bytes.toString(Charsets.UTF_8))
+    }
+
+    @Test
+    fun `replaceAll returns the original bytes when nothing matches`() {
+        val original = utf8Bom + utf8("一\r\n二")
+
+        val result = TextFileCodec.replaceAll(original, target = "三", replacement = "x")
+
+        assertEquals(0, result.count)
+        assertArrayEquals(original, result.bytes)
+    }
+
+    @Test
+    fun `replaceAll preserves the BOM and encoding`() {
+        val utf16 = utf16LeBom + "甲乙\r\n乙".toByteArray(Charsets.UTF_16LE)
+
+        val result = TextFileCodec.replaceAll(utf16, target = "乙", replacement = "丙")
+
+        assertArrayEquals(utf16LeBom + "甲丙\r\n丙".toByteArray(Charsets.UTF_16LE), result.bytes)
+    }
+
+    @Test
+    fun `replaceAll refuses files that are not valid unicode`() {
+        val big5 = "這是 Big5 編碼的內容".toByteArray(charset("Big5"))
+
+        assertThrows(UndecodableFileException::class.java) {
+            TextFileCodec.replaceAll(big5, target = "x", replacement = "y")
+        }
+    }
+
+    @Test
+    fun `replaceAll rejects line breaks in the arguments`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            TextFileCodec.replaceAll(utf8("一\n二"), target = "一\n", replacement = "x")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TextFileCodec.replaceAll(utf8("一\n二"), target = "一", replacement = "x\ny")
+        }
+    }
+
+    @Test
     fun `replaceLine rejects a line index outside the file`() {
         val original = utf8("一\n二\n")
 

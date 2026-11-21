@@ -10,6 +10,7 @@ import com.nekroz.meowreader.MeowReaderApp
 import com.nekroz.meowreader.R
 import com.nekroz.meowreader.repo.LineOutOfRangeException
 import com.nekroz.meowreader.repo.MainRepo
+import com.nekroz.meowreader.repo.TextFileCodec
 import com.nekroz.meowreader.repo.UndecodableFileException
 import com.nekroz.meowreader.repo.chapter.ChapterItem
 import com.nekroz.meowreader.repo.chapter.ChapterParser
@@ -46,6 +47,14 @@ data class ReaderPageUiState(
     val chaptersLoaded: Boolean = false,
     val isLoadingChapters: Boolean = false,
 )
+
+/** 全文取代的結果。 */
+sealed interface ReplaceAllResult {
+    /** 寫回成功；[count] 為 0 表示全文找不到，檔案沒有動。 */
+    data class Replaced(val count: Int) : ReplaceAllResult
+
+    data class Failed(val message: String) : ReplaceAllResult
+}
 
 class ReaderPageViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -289,6 +298,36 @@ class ReaderPageViewModel(application: Application) : AndroidViewModel(applicati
         }
         reloadLines()
         return null
+    }
+
+    /**
+     * 全文有幾處 [target]。直接數畫面上已讀進來的內容（每次寫檔後都會重讀），不另外讀檔；
+     * [target] 不含換行，所以逐行數的結果跟 [replaceAll] 實際會換掉的處數一致。
+     */
+    suspend fun countOccurrences(target: String): Int {
+        val lines = content.value.lines
+        return withContext(Dispatchers.Default) {
+            lines.sumOf { TextFileCodec.countOccurrences(it, target) }
+        }
+    }
+
+    /**
+     * 把整個檔案裡所有的 [target] 換成 [replacement] 並寫回。有取代到東西就重讀檔案讓畫面跟檔案一致。
+     */
+    suspend fun replaceAll(target: String, replacement: String): ReplaceAllResult {
+        val uri = fileUri ?: return ReplaceAllResult.Failed(app.getString(R.string.line_edit_error_file_not_found))
+        val count = try {
+            documentRepo.replaceAll(uri, target, replacement)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: UndecodableFileException) {
+            return ReplaceAllResult.Failed(app.getString(R.string.line_edit_error_not_utf8))
+        } catch (e: Exception) {
+            Log.w(TAG, "全文取代寫入失敗：$uri", e)
+            return ReplaceAllResult.Failed(app.getString(R.string.line_edit_error_write_failed, e.message.orEmpty()))
+        }
+        if (count > 0) reloadLines()
+        return ReplaceAllResult.Replaced(count)
     }
 
     // endregion

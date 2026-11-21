@@ -430,6 +430,8 @@ private fun ReaderContent(
             loadRawText = { viewModel.getRawLineText(lineIndex) },
             // 存檔成功後 ViewModel 會重讀整個檔案；清單以行索引定位，捲動位置不受影響。
             onSave = { newText -> viewModel.updateLineText(lineIndex, newText) },
+            onCountMatches = { target -> viewModel.countOccurrences(target) },
+            onReplaceAll = { target, replacement -> viewModel.replaceAll(target, replacement) },
             onDismiss = { editingLineIndex = null },
         )
     }

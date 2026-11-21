@@ -9,6 +9,8 @@
     <string name="action_back">返回</string>
     <string name="action_copy">複製</string>
     <string name="action_clear">清除</string>
+    <string name="action_replace">取代</string>
+    <string name="action_search">搜尋</string>
     <string name="action_edit">編輯</string>
     <string name="action_pin">釘選</string>
     <string name="action_unpin">取消釘選</string>
@@ -102,4 +104,11 @@
     <string name="line_edit_error_not_utf8">這個檔案不是 UTF-8 編碼，為避免寫回時毀掉整個檔案，請改用其他編輯器編輯。</string>
     <string name="line_edit_error_out_of_range">行號超出檔案範圍，檔案可能已被其他程式改過。</string>
     <string name="line_edit_error_write_failed">寫入失敗：%1$s</string>
+    <string name="line_replace_title">全文取代</string>
+    <string name="line_replace_find">被取代文字</string>
+    <string name="line_replace_with">取代文字</string>
+    <string name="line_replace_all">全部取代</string>
+    <string name="line_replace_not_found">全文找不到這段文字。</string>
+    <string name="line_replace_found">全文找到 %1$d 處。</string>
+    <string name="line_replace_done">已在全文取代 %1$d 處。</string>
 </resources>

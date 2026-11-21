@@ -138,6 +138,22 @@ class DocumentRepo(context: Context) {
         output.use { it.write(bytes) }
     }
 
+    /**
+     * 把整個檔案裡所有的 [target] 換成 [replacement] 並寫回，回傳取代了幾處。
+     * 一處都沒有就不寫檔。格式保留的方式同 [updateLine]，細節見 [TextFileCodec.replaceAll]。
+     *
+     * @throws UndecodableFileException 檔案不是 UTF-8／UTF-16，解碼後再寫回會毀掉內容
+     */
+    suspend fun replaceAll(fileUri: Uri, target: String, replacement: String): Int = withContext(Dispatchers.IO) {
+        val result = TextFileCodec.replaceAll(readBytes(fileUri), target, replacement)
+        if (result.count > 0) {
+            val output = resolver.openOutputStream(fileUri, "wt")
+                ?: throw FileNotFoundException(fileUri.toString())
+            output.use { it.write(result.bytes) }
+        }
+        result.count
+    }
+
     private fun readBytes(fileUri: Uri): ByteArray {
         val input = resolver.openInputStream(fileUri) ?: throw FileNotFoundException(fileUri.toString())
         return input.use { it.readBytes() }

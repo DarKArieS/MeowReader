@@ -47,6 +47,40 @@ object TextFileCodec {
         return decoded.bom + content.toByteArray(decoded.charset)
     }
 
+    /** [replaceAll] 的結果：要寫回檔案的完整內容，以及取代了幾處。 */
+    class ReplaceAllResult(val bytes: ByteArray, val count: Int)
+
+    /**
+     * 把全文所有的 [target] 換成 [replacement]。兩者都不能含換行字元，所以比對不會跨行，
+     * 行數與每一行的換行字元都不會變；編碼與 BOM 也照原本的保留。
+     *
+     * @throws UndecodableFileException 檔案不是 UTF-8／UTF-16，解碼後再寫回會毀掉內容
+     */
+    fun replaceAll(bytes: ByteArray, target: String, replacement: String): ReplaceAllResult {
+        require(target.isNotEmpty()) { "target 不能是空字串" }
+        require(target.none { it == '\r' || it == '\n' }) { "target 不能含換行字元" }
+        require(replacement.none { it == '\r' || it == '\n' }) { "replacement 不能含換行字元" }
+
+        val decoded = decode(bytes, strict = true)
+        val count = countOccurrences(decoded.text, target)
+        if (count == 0) return ReplaceAllResult(bytes, 0)
+
+        val content = decoded.text.replace(target, replacement)
+        return ReplaceAllResult(decoded.bom + content.toByteArray(decoded.charset), count)
+    }
+
+    /** 不重疊地數 [target] 出現幾次，跟 [String.replace] 的取代方式一致。 */
+    fun countOccurrences(text: String, target: String): Int {
+        if (target.isEmpty()) return 0
+        var count = 0
+        var index = text.indexOf(target)
+        while (index >= 0) {
+            count++
+            index = text.indexOf(target, index + target.length)
+        }
+        return count
+    }
+
     private class Decoded(val text: String, val charset: Charset, val bom: ByteArray)
 
     private class Line(val text: String, val ending: String)
