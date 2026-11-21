@@ -269,6 +269,20 @@ class MainRepo(private val saveFile: File) {
         }
     }
 
+    /** 加入或移除一個書籤。[lineIndex] 為 0-based 行索引。 */
+    fun setBookmark(fileName: String, lineIndex: Int, bookmarked: Boolean) {
+        if (fileName.isEmpty() || lineIndex < 0) return
+        // 移除時本來就沒紀錄就不必為它新增一筆空的 HistoryItem。
+        updateHistoryItem(fileName, createIfMissing = bookmarked) { item ->
+            val has = lineIndex in item.bookmarks
+            when {
+                bookmarked && !has -> item.copy(bookmarks = (item.bookmarks + lineIndex).sorted())
+                !bookmarked && has -> item.copy(bookmarks = item.bookmarks - lineIndex)
+                else -> item
+            }
+        }
+    }
+
     /** 記錄某個資料夾在 MainPage 的瀏覽位置。 */
     fun updateFolderScrollPosition(folderUri: String, itemIndex: Int) {
         if (folderUri.isEmpty()) return

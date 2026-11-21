@@ -85,6 +85,14 @@
     <string name="reader_line_number">第 %1$d 行</string>
     <string name="reader_copy_raw">複製原文</string>
 
+    <!-- 書籤 -->
+    <string name="bookmark_title">書籤</string>
+    <string name="bookmark_add">加入書籤</string>
+    <string name="bookmark_remove">移除書籤</string>
+    <string name="bookmark_add_current">把目前位置加入書籤</string>
+    <string name="bookmark_empty">還沒有書籤。按右上角可以把目前位置加入書籤，也可以長按某一行加入。</string>
+    <string name="bookmark_blank_line">（空白行）</string>
+
     <!-- 章節清單 -->
     <string name="chapter_list_title">章節</string>
     <string name="chapter_list_refresh">重新抓取章節</string>

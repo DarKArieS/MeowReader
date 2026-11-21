@@ -52,6 +52,13 @@ data class HistoryItem(
 
     /** 上次在 ReaderPage 開啟的時間（epoch 毫秒），閱讀歷史依此由新到舊排序。 */
     val lastOpenedAt: Long? = null,
+
+    /**
+     * 書籤，存的是行索引（0-based），由小到大排列、不重複。
+     * 只存行號不存內文：單行編輯與全文取代都不會改變行數，行號一直對得上，
+     * 預覽文字直接從目前的內容取，改過字也會顯示新的內容。
+     */
+    val bookmarks: List<Int> = emptyList(),
 ) {
     /** 閱讀進度百分比（0~100）。資訊不足時回傳 null。 */
     val progressPercent: Double?

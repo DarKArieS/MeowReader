@@ -239,6 +239,29 @@ class MainRepoTest {
     }
 
     @Test
+    fun `bookmarks stay sorted and unique`() {
+        val repo = MainRepo(saveFile)
+
+        repo.setBookmark("book", 50, true)
+        repo.setBookmark("book", 3, true)
+        repo.setBookmark("book", 50, true)
+        repo.setBookmark("book", 20, true)
+        assertEquals(listOf(3, 20, 50), repo.getHistoryItem("book")!!.bookmarks)
+
+        repo.setBookmark("book", 20, false)
+        assertEquals(listOf(3, 50), repo.getHistoryItem("book")!!.bookmarks)
+    }
+
+    @Test
+    fun `removing a bookmark from a file without history adds nothing`() {
+        val repo = MainRepo(saveFile)
+
+        repo.setBookmark("book", 3, false)
+
+        assertNull(repo.getHistoryItem("book"))
+    }
+
+    @Test
     fun `reader settings are clamped to their valid range`() {
         val repo = MainRepo(saveFile)
 

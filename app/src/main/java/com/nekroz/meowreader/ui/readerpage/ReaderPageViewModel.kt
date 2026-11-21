@@ -42,6 +42,8 @@ data class ReaderPageUiState(
     val setting: ReaderSetting = ReaderSetting(),
     /** 是否有對應的原文檔案（同資料夾 raw 子資料夾內的同名檔案）。 */
     val hasRawFile: Boolean = false,
+    /** 書籤的行索引（0-based），由小到大。 */
+    val bookmarks: List<Int> = emptyList(),
     /** 目前檔案掃描出來的章節。第一次打開章節清單時才載入。 */
     val chapters: List<ChapterItem> = emptyList(),
     val chaptersLoaded: Boolean = false,
@@ -114,18 +116,22 @@ class ReaderPageViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    private fun buildUiState(config: AppConfig, content: Content) = ReaderPageUiState(
-        fileName = fileName,
-        lines = content.lines,
-        isLoading = content.isLoading,
-        loadFailed = content.loadFailed,
-        isPinned = config.history.firstOrNull { it.fileName == fileName }?.isPinned == true,
-        setting = config.readerSetting,
-        hasRawFile = content.rawFileUri != null,
-        chapters = content.chapters,
-        chaptersLoaded = content.chaptersLoaded,
-        isLoadingChapters = content.isLoadingChapters,
-    )
+    private fun buildUiState(config: AppConfig, content: Content): ReaderPageUiState {
+        val history = config.history.firstOrNull { it.fileName == fileName }
+        return ReaderPageUiState(
+            fileName = fileName,
+            lines = content.lines,
+            isLoading = content.isLoading,
+            loadFailed = content.loadFailed,
+            isPinned = history?.isPinned == true,
+            bookmarks = history?.bookmarks.orEmpty(),
+            setting = config.readerSetting,
+            hasRawFile = content.rawFileUri != null,
+            chapters = content.chapters,
+            chaptersLoaded = content.chaptersLoaded,
+            isLoadingChapters = content.isLoadingChapters,
+        )
+    }
 
     /** 讀取檔案內容；讀不到時回傳 null。 */
     private suspend fun loadLines(): List<String>? {
@@ -164,6 +170,8 @@ class ReaderPageViewModel(application: Application) : AndroidViewModel(applicati
         if (fileName.isEmpty()) return
         repo.setFilePinned(fileName, !repo.isFilePinned(fileName))
     }
+
+    fun setBookmark(lineIndex: Int, bookmarked: Boolean) = repo.setBookmark(fileName, lineIndex, bookmarked)
 
     /** 收合/展開是使用者的偏好，記到設定檔，下次進 ReaderPage 沿用。 */
     fun toggleBottomPanel() {

@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Toc
+import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.PushPin
@@ -237,6 +238,7 @@ private fun ReaderContent(
     }
 
     var showChapters by rememberSaveable { mutableStateOf(false) }
+    var showBookmarks by rememberSaveable { mutableStateOf(false) }
     var showChapterSetting by rememberSaveable { mutableStateOf(false) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
     var lineMenu by remember { mutableStateOf<LineMenu?>(null) }
@@ -270,7 +272,7 @@ private fun ReaderContent(
                         detectTapGestures(
                             // 點兩下收合／展開底部面板。
                             onDoubleTap = { viewModel.toggleBottomPanel() },
-                            // 長按某一行跳出該行的選單（行號、編輯、複製原文）。
+                            // 長按某一行跳出該行的選單（行號、編輯、書籤、複製原文）。
                             onLongPress = { position ->
                                 val item = listState.layoutInfo.visibleItemsInfo.firstOrNull {
                                     position.y >= it.offset && position.y < it.offset + it.size
@@ -332,6 +334,16 @@ private fun ReaderContent(
                                 lineMenu = null
                             },
                         )
+                        val isBookmarked = menu.lineIndex in state.bookmarks
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(if (isBookmarked) R.string.bookmark_remove else R.string.bookmark_add))
+                            },
+                            onClick = {
+                                viewModel.setBookmark(menu.lineIndex, !isBookmarked)
+                                lineMenu = null
+                            },
+                        )
                         // 有 raw 資料夾內的原文檔案才出現這一項。
                         if (state.hasRawFile) {
                             DropdownMenuItem(
@@ -368,6 +380,7 @@ private fun ReaderContent(
                 listState = listState,
                 onBack = onBack,
                 onShowChapters = { showChapters = true },
+                onShowBookmarks = { showBookmarks = true },
                 onShowSettings = { showSettings = true },
                 onTogglePin = viewModel::togglePin,
             )
@@ -391,6 +404,26 @@ private fun ReaderContent(
             onRefresh = viewModel::refreshChapters,
             onOpenSetting = { showChapterSetting = true },
             onDismiss = { showChapters = false },
+        )
+    }
+
+    if (showBookmarks) {
+        // 以打開清單當下最上方可見的那一行當作「目前位置」。
+        val currentLineIndex = remember { listState.firstVisibleItemIndex }
+        BookmarkSheet(
+            bookmarks = state.bookmarks,
+            lines = lines,
+            currentLineIndex = currentLineIndex,
+            onAddCurrent = { viewModel.setBookmark(currentLineIndex, true) },
+            onBookmarkClick = { lineIndex ->
+                showBookmarks = false
+                scope.launch {
+                    listState.scrollToItem(lineIndex.coerceIn(0, lines.lastIndex.coerceAtLeast(0)))
+                    savePosition()
+                }
+            },
+            onRemove = { lineIndex -> viewModel.setBookmark(lineIndex, false) },
+            onDismiss = { showBookmarks = false },
         )
     }
 
@@ -438,7 +471,7 @@ private fun ReaderContent(
 }
 
 /**
- * 底部面板：返回、標題與閱讀進度、章節、設定、釘選，以及可以拖曳跳轉的進度條。
+ * 底部面板：返回、標題與閱讀進度、章節、書籤、設定、釘選，以及可以拖曳跳轉的進度條。
  */
 @Composable
 private fun ReaderBottomPanel(
@@ -448,6 +481,7 @@ private fun ReaderBottomPanel(
     listState: LazyListState,
     onBack: () -> Unit,
     onShowChapters: () -> Unit,
+    onShowBookmarks: () -> Unit,
     onShowSettings: () -> Unit,
     onTogglePin: () -> Unit,
 ) {
@@ -496,6 +530,9 @@ private fun ReaderBottomPanel(
                 )
                 IconButton(onClick = onShowChapters) {
                     Icon(Icons.AutoMirrored.Filled.Toc, contentDescription = stringResource(R.string.reader_chapters))
+                }
+                IconButton(onClick = onShowBookmarks) {
+                    Icon(Icons.Default.Bookmarks, contentDescription = stringResource(R.string.bookmark_title))
                 }
                 IconButton(onClick = onShowSettings) {
                     Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.reader_settings))
