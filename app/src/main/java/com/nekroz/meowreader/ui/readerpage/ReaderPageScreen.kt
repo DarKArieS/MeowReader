@@ -60,6 +60,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -91,6 +92,7 @@ import com.nekroz.meowreader.ui.theme.SystemBarIconsOverride
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
@@ -242,6 +244,8 @@ private fun ReaderContent(
     var showChapterSetting by rememberSaveable { mutableStateOf(false) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
     var lineMenu by remember { mutableStateOf<LineMenu?>(null) }
+    /** 按住翻頁熱區時的持續捲動，放開就取消。 */
+    var holdScrollJob by remember { mutableStateOf<Job?>(null) }
     var editingLineIndex by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val textStyle = remember(setting.fontSize, setting.lineSpacing, textColor) {
@@ -290,13 +294,23 @@ private fun ReaderContent(
                     // 翻頁熱區要排在 detectTapGestures 後面（更內層）：這樣它先收到事件，
                     // 點擊後不必等「是不是點兩下」的判定逾時就能立刻翻頁。
                     .pointerInput(Unit) {
-                        detectPageTaps { direction ->
-                            scope.launch {
-                                listState.animateScrollBy(
-                                    direction * listState.layoutInfo.viewportSize.height * PAGE_SCROLL_FRACTION
-                                )
-                            }
-                        }
+                        detectPageTaps(
+                            onPage = { direction ->
+                                scope.launch {
+                                    listState.animateScrollBy(
+                                        direction * listState.layoutInfo.viewportSize.height * PAGE_SCROLL_FRACTION
+                                    )
+                                }
+                            },
+                            onHoldStart = { direction ->
+                                holdScrollJob?.cancel()
+                                holdScrollJob = scope.launch { listState.scrollContinuously(direction) }
+                            },
+                            onHoldEnd = {
+                                holdScrollJob?.cancel()
+                                holdScrollJob = null
+                            },
+                        )
                     },
                 state = listState,
                 contentPadding = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom).asPaddingValues(),
@@ -565,13 +579,17 @@ private fun ReaderBottomPanel(
 }
 
 /**
- * 畫面左下角／右下角的翻頁熱區：點左下往回捲、點右下往下捲。
- * [onPage] 的參數是方向，-1 往回、+1 往下。
+ * 畫面左下角／右下角的翻頁熱區：點左下往回捲、點右下往下捲；按住不放則持續捲動，放開就停。
+ * 方向參數 -1 往回、+1 往下。
  *
- * 熱區只認「在同一區按下又放開」的點擊；手指一拖動（捲動清單）就取消，
- * 按太久也不算，留給長按選單處理。
+ * 點擊只認「在同一區按下又放開」；手指一拖動（捲動清單）就取消，交給清單自己捲。
+ * 熱區內的按壓整個由這裡處理，所以熱區裡不會觸發外層的點兩下與長按選單。
  */
-private suspend fun PointerInputScope.detectPageTaps(onPage: (direction: Int) -> Unit) {
+private suspend fun PointerInputScope.detectPageTaps(
+    onPage: (direction: Int) -> Unit,
+    onHoldStart: (direction: Int) -> Unit,
+    onHoldEnd: () -> Unit,
+) {
     val zoneWidth = PAGE_ZONE_WIDTH.toPx()
     val zoneHeight = PAGE_ZONE_HEIGHT.toPx()
 
@@ -587,12 +605,53 @@ private suspend fun PointerInputScope.detectPageTaps(onPage: (direction: Int) ->
         val zone = zoneAt(down.position)
         if (zone == 0) return@awaitEachGesture
 
-        val up = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) { waitForUpOrCancellation() }
-            ?: return@awaitEachGesture
-        if (zoneAt(up.position) == zone) {
-            // 吃掉這次放開，外層的點擊偵測就不會把連續翻頁誤判成點兩下。
-            up.consume()
-            onPage(zone)
+        // 吃掉按下：外層的點擊偵測就不會把連續翻頁誤判成點兩下，按住時也不會跳出長按選單。
+        // 清單本身的拖動捲動比這裡更早收到事件，不受影響。
+        down.consume()
+
+        var cancelled = false
+        val up = withTimeoutOrNull(HOLD_DELAY_MS) {
+            waitForUpOrCancellation().also { if (it == null) cancelled = true }
+        }
+        if (cancelled) return@awaitEachGesture
+
+        if (up != null) {
+            if (zoneAt(up.position) == zone) {
+                up.consume()
+                onPage(zone)
+            }
+            return@awaitEachGesture
+        }
+
+        // 時間到了手指還按著：開始持續捲動，直到放開或改成拖動清單為止。
+        onHoldStart(zone)
+        try {
+            waitForUpOrCancellation()?.consume()
+        } finally {
+            onHoldEnd()
+        }
+    }
+}
+
+/**
+ * 一直捲下去，直到被取消或捲到頭。按得越久捲得越快：從起始速度開始，
+ * 在 [HOLD_ACCELERATION_MS] 內線性加速到最高速度後維持。
+ * 每一幀依實際經過的時間換算距離，掉幀時速度也不會跟著變慢。
+ */
+private suspend fun LazyListState.scrollContinuously(direction: Int) {
+    scroll {
+        val startFrame = withFrameNanos { it }
+        var lastFrame = startFrame
+        while (true) {
+            val frame = withFrameNanos { it }
+            val progress = ((frame - startFrame) / 1_000_000f / HOLD_ACCELERATION_MS).coerceAtMost(1f)
+            val screensPerSecond = HOLD_SCROLL_START_SPEED +
+                (HOLD_SCROLL_MAX_SPEED - HOLD_SCROLL_START_SPEED) * progress
+            val speed = layoutInfo.viewportSize.height * screensPerSecond
+            val delta = direction * speed * (frame - lastFrame) / 1_000_000_000f
+            lastFrame = frame
+            // 捲到頭了，捲不動就停。
+            if (delta != 0f && scrollBy(delta) == 0f) break
         }
     }
 }
@@ -602,6 +661,18 @@ private val PAGE_ZONE_HEIGHT = 220.dp
 
 /** 每次翻頁捲動的距離佔畫面高度的比例，留一點重疊讓視線接得上。 */
 private const val PAGE_SCROLL_FRACTION = 0.8f
+
+/** 在熱區按住多久之後開始持續捲動；比這短就算一般的點擊翻頁。 */
+private const val HOLD_DELAY_MS = 300L
+
+/** 按住熱區時的起始捲動速度：每秒捲過幾個畫面高度。 */
+private const val HOLD_SCROLL_START_SPEED = 1.0f
+
+/** 按住熱區時的最高捲動速度：每秒捲過幾個畫面高度。 */
+private const val HOLD_SCROLL_MAX_SPEED = 6.0f
+
+/** 從起始速度加速到最高速度要按住多久。 */
+private const val HOLD_ACCELERATION_MS = 3000f
 
 private const val SAVE_DEBOUNCE_MS = 1000L
 private const val RESTORE_TIMEOUT_MS = 1000L
