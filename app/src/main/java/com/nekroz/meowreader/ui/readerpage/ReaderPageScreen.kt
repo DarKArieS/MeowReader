@@ -270,7 +270,7 @@ private fun ReaderContent(
                         detectTapGestures(
                             // 點兩下收合／展開底部面板。
                             onDoubleTap = { viewModel.toggleBottomPanel() },
-                            // 長按某一行跳出該行的選單（行號、編輯、複製）。
+                            // 長按某一行跳出該行的選單（行號、編輯、複製原文）。
                             onLongPress = { position ->
                                 val item = listState.layoutInfo.visibleItemsInfo.firstOrNull {
                                     position.y >= it.offset && position.y < it.offset + it.size
@@ -329,16 +329,6 @@ private fun ReaderContent(
                             text = { Text(stringResource(R.string.action_edit)) },
                             onClick = {
                                 editingLineIndex = menu.lineIndex
-                                lineMenu = null
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_copy)) },
-                            onClick = {
-                                val text = lines.getOrNull(menu.lineIndex).orEmpty()
-                                scope.launch {
-                                    clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(state.fileName, text)))
-                                }
                                 lineMenu = null
                             },
                         )
