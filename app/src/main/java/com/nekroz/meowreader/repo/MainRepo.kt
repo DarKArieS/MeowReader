@@ -246,6 +246,29 @@ class MainRepo(private val saveFile: File) {
         }
     }
 
+    /** 記下檔案在 ReaderPage 被開啟的位置與時間，閱讀歷史依此列出並重新開啟檔案。 */
+    fun recordFileOpened(fileName: String, file: OpenFile, openedAt: Long = System.currentTimeMillis()) {
+        if (fileName.isEmpty()) return
+        updateHistoryItem(fileName) { it.copy(lastFile = file, lastOpenedAt = openedAt) }
+    }
+
+    /**
+     * 從閱讀歷史移除指定的檔案：只清掉開啟位置與時間，閱讀進度、釘選與章節資料都保留，
+     * 之後再開這個檔案就會接著上次的進度，並重新出現在閱讀歷史裡。
+     */
+    fun clearOpenRecords(fileNames: Collection<String>) {
+        if (fileNames.isEmpty()) return
+        val targets = fileNames.toHashSet()
+        update { config ->
+            if (config.history.none { it.fileName in targets && it.lastFile != null }) return@update config
+            config.copy(
+                history = config.history.map {
+                    if (it.fileName in targets) it.copy(lastFile = null, lastOpenedAt = null) else it
+                }
+            )
+        }
+    }
+
     /** 記錄某個資料夾在 MainPage 的瀏覽位置。 */
     fun updateFolderScrollPosition(folderUri: String, itemIndex: Int) {
         if (folderUri.isEmpty()) return

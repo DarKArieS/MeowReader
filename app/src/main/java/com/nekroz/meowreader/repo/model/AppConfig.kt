@@ -33,6 +33,8 @@ data class OpenFile(
     val name: String,
     /** 檔案所在資料夾的 document URI，用來尋找 raw 子資料夾內的原文檔案。 */
     val folderUri: String,
+    /** 從根資料夾到檔案所在資料夾的路徑（例如「小說 / 子資料夾」），給閱讀歷史顯示。舊版設定檔沒有這一項。 */
+    val folderPath: String = "",
 )
 
 /**
@@ -61,4 +63,7 @@ data class AppConfig(
 ) {
     val rootFolder: FolderRef? get() = folderStack.firstOrNull()
     val currentFolder: FolderRef? get() = folderStack.lastOrNull()
+
+    /** 從根資料夾到目前資料夾的路徑，SAF 沒有真正的檔案路徑，用資料夾名稱串起來代替。 */
+    val folderPath: String get() = folderStack.joinToString(" / ") { it.name }
 }

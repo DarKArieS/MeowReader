@@ -193,6 +193,52 @@ class MainRepoTest {
     }
 
     @Test
+    fun `recording an open keeps the rest of the history item and survives a reload`() {
+        val repo = MainRepo(saveFile)
+        repo.updateHistory("book", lineIndex = 10, lineFraction = 0.5, readLines = 20, totalLines = 100)
+        repo.setFilePinned("book", true)
+        val file = OpenFile("content://tree/root/book.txt", "book.txt", "content://tree/root", "小說")
+
+        repo.recordFileOpened("book", file, openedAt = 1_700_000_000_000)
+        repo.flush()
+
+        val item = MainRepo(saveFile).getHistoryItem("book")!!
+        assertEquals(file, item.lastFile)
+        assertEquals(1_700_000_000_000, item.lastOpenedAt)
+        assertEquals(10, item.lineIndex)
+        assertTrue(item.isPinned)
+    }
+
+    @Test
+    fun `clearing open records keeps the reading progress`() {
+        val repo = MainRepo(saveFile)
+        val root = "content://tree/root"
+        repo.updateHistory("a", lineIndex = 10, lineFraction = 0.0, readLines = 20, totalLines = 100)
+        repo.recordFileOpened("a", OpenFile("$root/a.txt", "a.txt", root), openedAt = 1)
+        repo.recordFileOpened("b", OpenFile("$root/b.txt", "b.txt", root), openedAt = 2)
+
+        repo.clearOpenRecords(listOf("a"))
+
+        val a = repo.getHistoryItem("a")!!
+        assertNull(a.lastFile)
+        assertNull(a.lastOpenedAt)
+        assertEquals(10, a.lineIndex)
+        assertEquals(20, a.readLines)
+        assertEquals(2L, repo.getHistoryItem("b")!!.lastOpenedAt)
+    }
+
+    @Test
+    fun `clearing records that are already gone does not touch the config`() {
+        val repo = MainRepo(saveFile)
+        repo.updateHistory("a", lineIndex = 1, lineFraction = 0.0, readLines = 2, totalLines = 10)
+        val before = repo.current
+
+        repo.clearOpenRecords(listOf("a", "missing"))
+
+        assertSame(before, repo.current)
+    }
+
+    @Test
     fun `reader settings are clamped to their valid range`() {
         val repo = MainRepo(saveFile)
 

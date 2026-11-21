@@ -20,6 +20,7 @@
     <!-- MainPage -->
     <string name="main_back_to_parent">返回上一層</string>
     <string name="main_select_folder">選擇資料夾</string>
+    <string name="main_history">閱讀歷史</string>
     <string name="main_sort">排序方式</string>
     <string name="main_sort_by_name">依名稱</string>
     <string name="main_sort_by_modified_date">依修改日期</string>
@@ -37,6 +38,17 @@
     <string name="main_progress_description">閱讀進度 %1$s%%</string>
     <string name="main_config_corrupt_title">設定檔錯誤</string>
     <string name="main_config_corrupt_message">設定檔讀取失敗，可能已損毀。已改用全新的預設設定，原本的設定檔另存為 %1$s。</string>
+
+    <!-- 閱讀歷史 -->
+    <string name="history_title">閱讀歷史</string>
+    <string name="history_empty">還沒有閱讀紀錄。開啟過的檔案會依時間列在這裡。</string>
+    <string name="history_selected_count">已選取 %1$d 項</string>
+    <string name="history_exit_edit">結束編輯</string>
+    <string name="history_select_all">全選</string>
+    <string name="history_deselect_all">取消全選</string>
+    <string name="history_clear">清除</string>
+    <string name="history_clear_title">清除閱讀歷史</string>
+    <string name="history_clear_message">要從閱讀歷史清除這 %1$d 項嗎？閱讀進度會保留，之後再開啟就會重新出現在這裡。</string>
 
     <!-- 全域設定 -->
     <string name="global_setting_title">全域設定</string>

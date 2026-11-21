@@ -94,6 +94,8 @@ class ReaderPageViewModel(application: Application) : AndroidViewModel(applicati
 
     init {
         repo.setLastPage(AppPage.ReaderPage)
+        // 不論是從 MainPage、閱讀歷史還是 App 重開直接回到閱讀頁，都算開啟一次。
+        if (openFile != null) repo.recordFileOpened(fileName, openFile)
         viewModelScope.launch {
             val lines = loadLines()
             val rawFileUri = if (lines != null && openFile != null) {

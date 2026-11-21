@@ -163,9 +163,12 @@ class MainPageViewModel(application: Application) : AndroidViewModel(application
 
     /** 記下要開啟的檔案；跳轉到 ReaderPage 由畫面層負責。 */
     fun openFile(item: FileItem) {
-        val folderUri = repo.current.currentFolder?.uri ?: return
+        val config = repo.current
+        val folder = config.currentFolder ?: return
         if (item.isFolder) return
-        repo.setOpenFile(OpenFile(uri = item.uri, name = item.name, folderUri = folderUri))
+        repo.setOpenFile(
+            OpenFile(uri = item.uri, name = item.name, folderUri = folder.uri, folderPath = config.folderPath)
+        )
     }
 
     fun backToParent() {
@@ -211,7 +214,7 @@ class MainPageViewModel(application: Application) : AndroidViewModel(application
             hasFolder = true,
             folderUri = folder.uri,
             folderName = folder.name,
-            breadcrumb = config.folderStack.joinToString(" / ") { it.name },
+            breadcrumb = config.folderPath,
             canGoBack = config.folderStack.size > 1,
             items = current?.entries?.let { buildItems(it, config, sortMode) }.orEmpty(),
             isLoading = current == null,

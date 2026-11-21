@@ -29,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.Description
@@ -65,8 +66,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -77,8 +76,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nekroz.meowreader.R
-import java.util.Locale
-import kotlin.math.roundToInt
+import com.nekroz.meowreader.ui.common.ReadingProgress
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
@@ -88,6 +86,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainPageScreen(
     onOpenReader: () -> Unit,
+    onOpenHistory: () -> Unit,
     viewModel: MainPageViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -121,6 +120,7 @@ fun MainPageScreen(
                 sortMode = state.sortMode,
                 onBack = viewModel::backToParent,
                 onSortModeChange = viewModel::setSortMode,
+                onOpenHistory = onOpenHistory,
                 onSelectFolder = pickFolder,
                 onGlobalSetting = { showGlobalSetting = true },
                 onRawConfig = { showRawConfig = true },
@@ -243,6 +243,7 @@ private fun MainTopBar(
     sortMode: FileSortMode,
     onBack: () -> Unit,
     onSortModeChange: (FileSortMode) -> Unit,
+    onOpenHistory: () -> Unit,
     onSelectFolder: () -> Unit,
     onGlobalSetting: () -> Unit,
     onRawConfig: () -> Unit,
@@ -285,6 +286,9 @@ private fun MainTopBar(
                         },
                     )
                 }
+            }
+            IconButton(onClick = onOpenHistory) {
+                Icon(Icons.Default.History, contentDescription = stringResource(R.string.main_history))
             }
             IconButton(onClick = onSelectFolder) {
                 Icon(Icons.Default.FolderOpen, contentDescription = stringResource(R.string.main_select_folder))
@@ -480,30 +484,6 @@ private fun FileItemRow(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ReadingProgress(percent: Double) {
-    val description = stringResource(
-        R.string.main_progress_description,
-        String.format(Locale.ROOT, "%.2f", percent),
-    )
-    Row(
-        modifier = Modifier.clearAndSetSemantics { contentDescription = description },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.main_progress_label, percent.roundToInt()),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        CircularProgressIndicator(
-            progress = { (percent / 100.0).toFloat() },
-            modifier = Modifier.size(28.dp),
-            strokeWidth = 3.dp,
-        )
     }
 }
 

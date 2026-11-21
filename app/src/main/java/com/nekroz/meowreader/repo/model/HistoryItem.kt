@@ -43,6 +43,15 @@ data class HistoryItem(
      * 只是暫時關閉不用；關掉這個開關就能拿回原本填的設定，不必重新輸入。
      */
     val useDefaultChapterSetting: Boolean = true,
+
+    /**
+     * 上次在 ReaderPage 開啟時的檔案位置，閱讀歷史靠它重新開啟檔案。
+     * 舊版設定檔沒有這一項，要等檔案再被開過一次才會補上。
+     */
+    val lastFile: OpenFile? = null,
+
+    /** 上次在 ReaderPage 開啟的時間（epoch 毫秒），閱讀歷史依此由新到舊排序。 */
+    val lastOpenedAt: Long? = null,
 ) {
     /** 閱讀進度百分比（0~100）。資訊不足時回傳 null。 */
     val progressPercent: Double?

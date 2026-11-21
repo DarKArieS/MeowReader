@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nekroz.meowreader.repo.MainRepo
 import com.nekroz.meowreader.repo.model.AppPage
+import com.nekroz.meowreader.ui.historypage.HistoryPageScreen
 import com.nekroz.meowreader.ui.mainpage.MainPageScreen
 import com.nekroz.meowreader.ui.readerpage.ReaderPageScreen
 import com.nekroz.meowreader.ui.theme.MeowReaderTheme
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
 private object Routes {
     const val MAIN = "main"
     const val READER = "reader"
+    const val HISTORY = "history"
 }
 
 @Composable
@@ -64,6 +66,21 @@ private fun MeowReaderNavHost(startInReader: Boolean) {
     ) {
         composable(Routes.MAIN) {
             MainPageScreen(
+                onOpenReader = {
+                    navController.navigate(Routes.READER) { launchSingleTop = true }
+                },
+                onOpenHistory = {
+                    navController.navigate(Routes.HISTORY) { launchSingleTop = true }
+                },
+            )
+        }
+        composable(Routes.HISTORY) {
+            HistoryPageScreen(
+                onBack = {
+                    // 連點返回時第二下進來頁面已經在退場了，不能再退一次。
+                    if (navController.currentDestination?.route == Routes.HISTORY) navController.popBackStack()
+                },
+                // 從閱讀頁返回時回到閱讀歷史。
                 onOpenReader = {
                     navController.navigate(Routes.READER) { launchSingleTop = true }
                 },
